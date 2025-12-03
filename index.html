@@ -84,6 +84,8 @@ button.paypal-button { margin-top:15px; }
 
 <script src="https://www.paypal.com/sdk/js?client-id=ARWiU1EoJoc20Ht7sWAKSSbEhGC88lB6NFAX4a5Lzs_zzQgJmeROf0Kgfo-lba4jpEeZKbbz21_H8AZE&currency=EUR"></script>
 <script>
+const scriptUrl = "https://script.google.com/macros/s/AKfycbxvVOnqA-zw7L0W-VodonIE4cBGaxshe35L71O7yUnjCFvD_tWJoDMv0JyGeMDYXduZAQ/exec";
+
 function renderPayPal(containerId, amount, packName) {
   paypal.Buttons({
     style: { shape:'pill', color:'blue', label:'pay' },
@@ -92,7 +94,8 @@ function renderPayPal(containerId, amount, packName) {
     },
     onApprove: function(data, actions) {
       return actions.order.capture().then(function(details) {
-        fetch('https://script.google.com/macros/s/AKfycbwMH7Unyoja8DQhR3oEkOtJ5px668g1X5l-rcasfxzScy-hGqV-OwUavkWDoygsggyTWg/exec', {
+        // Appel Apps Script pour déclencher le service automatique
+        fetch(scriptUrl, {
           method:'POST',
           headers:{ 'Content-Type':'application/json' },
           body:JSON.stringify({
@@ -101,6 +104,7 @@ function renderPayPal(containerId, amount, packName) {
             pack: packName
           })
         });
+        // Affichage confirmation
         document.querySelectorAll('.pack').forEach(p=>p.style.display='none');
         document.getElementById('confirmation').style.display='block';
       });
