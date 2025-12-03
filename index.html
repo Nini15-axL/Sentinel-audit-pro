@@ -5,18 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sentinel Audit Pro</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f4f4f5; color:#0B1E3F; margin:0; padding:0;}
+body { font-family: Arial, sans-serif; background:#f0f2f5; color:#0B1E3F; margin:0; padding:0;}
 header { background:#1A73E8; color:#fff; padding:40px 20px; text-align:center;}
-h1,h2 { margin:0; }
-h2 { color:#FF9500; margin-bottom:15px;}
-section { padding:20px; max-width:800px; margin:0 auto;}
-.pack, .abonnement { border:2px solid #1A73E8; border-radius:10px; padding:20px; margin:20px 0; background:white;}
-label { display:block; margin:10px 0 5px;}
-select, input { width:100%; padding:8px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc;}
-button { background:#30D158; color:white; border:none; padding:15px; font-size:1em; border-radius:5px; cursor:pointer; width:100%;}
-button:hover { background:#28a745;}
+header h1 { margin:0 0 10px 0; font-size:2.2em; }
+header p { margin:0; font-size:1.1em; }
+section { padding:40px 20px; max-width:1000px; margin:0 auto;}
+h2 { color:#FF9500; margin-bottom:20px; text-align:center; }
+.pack-container { display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
+.pack-card { background:#fff; border-radius:15px; border:1px solid #ccc; padding:20px; width:280px; box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+.pack-card h3 { margin-top:0; color:#1A73E8; }
+.pack-card ul { padding-left:20px; }
+.pack-card p.price { font-weight:bold; font-size:1.2em; margin:10px 0; }
+button.pay-btn { background:#30D158; color:white; border:none; padding:12px; font-size:1em; border-radius:8px; cursor:pointer; width:100%; }
+button.pay-btn:hover { background:#28a745; }
+#confirmation { display:none; text-align:center; padding:20px; background:#d4edda; color:#155724; border-radius:10px; margin-top:20px; }
 footer { text-align:center; padding:20px; font-size:0.9em; color:#555;}
-#confirmation { display:none; margin-top:20px; }
+.abonnement-options { margin-top:15px; }
+.abonnement-options select { width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; margin-bottom:10px; }
 </style>
 </head>
 <body>
@@ -27,109 +32,4 @@ footer { text-align:center; padding:20px; font-size:0.9em; color:#555;}
 </header>
 
 <section>
-<h2>Nos Packs</h2>
-<div class="pack">
-<h3>Pack Express</h3>
-<p>Audit rapide + PDF résumé</p>
-<p><strong>Prix : 250 €</strong></p>
-</div>
-<div class="pack">
-<h3>Pack Pro</h3>
-<p>Audit complet 360° + PDF détaillé + plan priorisé</p>
-<p><strong>Prix : 500 €</strong></p>
-</div>
-
-<h2>Abonnement Premier</h2>
-<div class="abonnement" id="abonnementContainer" style="display:none;">
-<label for="abonnement">Choisir votre niveau :</label>
-<select id="abonnement">
-<option value="">-- Sélectionner --</option>
-<option value="premier_250">Rapport PDF + plan priorisé – 250 €/mois</option>
-<option value="premier_300">Session debriefing personnalisée – 300 €/mois</option>
-<option value="premier_500">Protection continue – 500 €/mois</option>
-<option value="premier_900">Abonnement complet – 900 €/mois</option>
-</select>
-</div>
-</section>
-
-<section>
-<h2>Commander votre audit</h2>
-<form id="auditForm">
-<label for="name">Nom / Entreprise</label>
-<input type="text" id="name" required>
-
-<label for="email">Email</label>
-<input type="email" id="email" required>
-
-<label for="domain">Domaine / Site Web</label>
-<input type="text" id="domain" required>
-
-<label for="pack">Choix du Pack / Abonnement</label>
-<select id="pack" required>
-<option value="">-- Sélectionner --</option>
-<option value="express">Pack Express – 250 €</option>
-<option value="pro">Pack Pro – 500 €</option>
-<option value="premier">Pack Premier – abonnement</option>
-</select>
-
-<button type="button" id="payButton">Lancer mon audit</button>
-</form>
-
-<div id="confirmation">
-<h2>Merci !</h2>
-<p>Votre audit Sentinel Audit Pro est en cours. Vous recevrez votre rapport PDF sous 24h.</p>
-</div>
-</section>
-
-<footer>
-&copy; 2025 Sentinel Audit Pro. Tous droits réservés.
-</footer>
-
-<script>
-const packSelect = document.getElementById('pack');
-const abonnementContainer = document.getElementById('abonnementContainer');
-const abonnementSelect = document.getElementById('abonnement');
-const payButton = document.getElementById('payButton');
-const auditForm = document.getElementById('auditForm');
-const confirmation = document.getElementById('confirmation');
-
-const appsScriptUrl = "https://script.google.com/macros/s/AKfycbz8zyIy_Pvj8WhcXsUW0NPcZisZOC7LulQegEx5eOZddJmEPhEh7eK7yhfamK7zalLl/exec";
-
-// Afficher abonnement seulement si Pack Premier choisi
-packSelect.addEventListener('change', function(){
-    abonnementContainer.style.display = (this.value === 'premier') ? 'block' : 'none';
-    abonnementSelect.value = '';
-});
-
-// Bouton de paiement
-payButton.addEventListener('click', function(){
-    const pack = packSelect.value;
-    const abonnement = abonnementSelect.value;
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const domain = document.getElementById('domain').value.trim();
-
-    if(!pack){ alert('Choisissez un pack'); return; }
-    if(pack === 'premier' && !abonnement){ alert('Choisissez un niveau pour Pack Premier'); return; }
-    if(!name || !email || !domain){ alert('Merci de remplir tous les champs'); return; }
-
-    // Appel Apps Script pour obtenir le lien PayPal
-    const url = appsScriptUrl + `?pack=${pack}${pack==='premier'?'&abonnement='+abonnement:''}`;
-    
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if(data.status === "ok"){
-            window.open(data.paypal,"_blank"); // ouvre PayPal
-            auditForm.style.display = 'none';
-            confirmation.style.display = 'block';
-        } else {
-            alert('Erreur : ' + data.message);
-        }
-      })
-      .catch(err => { alert('Erreur connexion Web App'); console.error(err); });
-});
-</script>
-
-</body>
-</html>
+<h2>Nos Packs</
