@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel Audit Pro</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f4f4f5; color:#0B1E3F; margin:0; padding:0;}
+header { background:#1A73E8; color:#fff; padding:40px 20px; text-align:center;}
+h1,h2 { margin:0; }
+h2 { color:#FF9500; margin-bottom:15px;}
+section { padding:20px; max-width:800px; margin:0 auto;}
+.pack, .abonnement { border:2px solid #1A73E8; border-radius:10px; padding:20px; margin:20px 0; background:white;}
+label { display:block; margin:10px 0 5px;}
+select, input { width:100%; padding:8px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc;}
+footer { text-align:center; padding:20px; font-size:0.9em; color:#555;}
+#paypal-button-container { margin-top:15px; }
+#appName { font-weight:bold; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>Sentinel Audit Pro</h1>
+<p>Audit cybersécurité rapide et complet pour petites entreprises et freelances</p>
+</header>
+
+<section>
+<h2>Nos Packs</h2>
+<div class="pack">
+<h3>Pack Express</h3>
+<p>Audit rapide + PDF résumé</p>
+<p><strong>Prix : 250 €</strong></p>
+</div>
+<div class="pack">
+<h3>Pack Pro</h3>
+<p>Audit complet 360° + PDF détaillé + plan priorisé</p>
+<p><strong>Prix : 500 €</strong></p>
+</div>
+
+<h2>Abonnement Premier</h2>
+<div class="abonnement" id="abonnementContainer" style="display:none;">
+<label for="abonnement">Choisir votre niveau :</label>
+<select id="abonnement">
+<option value="">-- Sélectionner --</option>
+<option value="premier_250">Rapport PDF + plan priorisé – 250 €/mois</option>
+<option value="premier_300">Session de débriefing personnalisée – 300 €/mois</option>
+<option value="premier_500">Protection continue – 500 €/mois</option>
+<option value="premier_900">Abonnement complet – 900 €/mois</option>
+</select>
+</div>
+</section>
+
+<section>
+<h2>Commander votre audit</h2>
+<form id="auditForm">
+<label for="name">Nom / Entreprise</label>
+<input type="text" id="name" required>
+
+<label for="email">Email</label>
+<input type="email" id="email" required>
+
+<label for="domain">Domaine / Site Web</label>
+<input type="text" id="domain" required>
+
+<label for="pack">Choix du Pack / Abonnement</label>
+<select id="pack" required>
+<option value="">-- Sélectionner --</option>
+<option value="express">Pack Express – 250 €</option>
+<option value="pro">Pack Pro – 500 €</option>
+<option value="premier">Pack Premier – abonnement</option>
+</select>
+
+<!-- Affichage du nom de l'application -->
+<p id="appName"></p>
+
+<!-- Conteneur pour le bouton PayPal -->
+<div id="paypal-button-container"></div>
+</form>
+
+<div id="confirmation" style="display:none; margin-top:20px;">
+<h2>Merci !</h2>
+<p>Votre audit Sentinel Audit Pro est en cours. Vous recevrez votre rapport PDF sous 24h.</p>
+</div>
+</section>
+
+<footer>
+&copy; 2025 Sentinel Audit Pro. Tous droits réservés.
+</footer>
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=ARWiU1EoJoc20Ht7sWAKSSbEhGC88lB6NFAX4a5Lzs_zzQgJmeROf0Kgfo-lba4jpEeZKbbz21_H8AZE&currency=EUR"></script>
+<script>
+const packSelect = document.getElementById('pack');
+const abonnementContainer = document.getElementById('abonnementContainer');
+const abonnementSelect = document.getElementById('abonnement');
+const appNameElement = document.getElementById('appName');
+const auditForm = document.getElementById('auditForm');
+
+// Affiche le nom de l'application
+const appName = "Sentinel Audit Pro";
+appNameElement.textContent = "Application PayPal : " + appName;
+
+// Afficher abonnement seulement si Pack Premier choisi
+packSelect.addEventListener('change', function(){
+    abonnementContainer.style.display = (this.value === 'premier') ? 'block' : 'none';
+    abonnementSelect.value = '';
+});
+
+// Déterminer le montant à payer
+function getAmount() {
+    const selectedPack = packSelect.value;
+    const abonnementLevel = abonnementSelect.value;
+    if(selectedPack === 'express') return '250';
+    if(selectedPack === 'pro') return '500';
+    if(selectedPack === 'premier'){
+        const mapping = {
+            'premier_250': '250',
+            'premier_300': '300',
+            'premier_500': '500',
+            'premier_900': '900'
+        };
+        return mapping[abonnementLevel] || '0';
+    }
+    return '0';
+}
+
+// Render PayPal Smart Button
+paypal.Buttons({
+    style: { color: 'blue', shape: 'pill', label: 'pay' },
+    createOrder: function(data, actions) {
+        const amount = getAmount();
+        if(amount === '0'){
+            alert('Veuillez choisir un pack et niveau pour Pack Premier.');
+            return;
+        }
+        // Vérifier que tous les champs sont remplis
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const domain = document.getElementById('domain').value.trim();
+        if(!name || !email || !domain){
+            alert('Merci de remplir tous les champs.');
+            return;
+        }
+
+        return actions.order.create({
+            purchase_units: [{ amount: { value: amount } }]
+        });
+    },
+    onApprove: function
