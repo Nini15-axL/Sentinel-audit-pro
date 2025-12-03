@@ -1,0 +1,21 @@
+<script>
+const packSelect = document.getElementById('pack');
+const abonnementContainer = document.getElementById('abonnementContainer');
+const abonnementSelect = document.getElementById('abonnement');
+const appNameElement = document.getElementById('appName');
+const auditForm = document.getElementById('auditForm');
+const confirmation = document.getElementById('confirmation');
+
+// Affiche le nom de l'application
+const appName = "Sentinel Audit Pro";
+appNameElement.textContent = "Application PayPal : " + appName;
+
+// Afficher abonnement seulement si Pack Premier choisi
+packSelect.addEventListener('change', function(){
+    abonnementContainer.style.display = (this.value === 'premier') ? 'block' : 'none';
+    abonnementSelect.value = '';
+});
+
+// Déterminer le montant à payer
+function getAmount() {
+    const selectedPack
