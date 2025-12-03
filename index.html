@@ -14,8 +14,18 @@ section { padding:20px; max-width:800px; margin:0 auto;}
 label { display:block; margin:10px 0 5px;}
 select, input { width:100%; padding:8px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc;}
 footer { text-align:center; padding:20px; font-size:0.9em; color:#555;}
-#paypal-button-container { margin-top:15px; }
-#appName { font-weight:bold; margin-bottom:10px; }
+#paypal-button-container { margin-top:20px; }
+.paypalme-btn {
+  display:block;
+  margin-top:15px;
+  background:#0B1E3F;
+  padding:15px;
+  text-align:center;
+  border-radius:10px;
+  color:white;
+  font-size:18px;
+  text-decoration:none;
+}
 </style>
 </head>
 <body>
@@ -71,7 +81,12 @@ footer { text-align:center; padding:20px; font-size:0.9em; color:#555;}
 <option value="premier">Pack Premier – abonnement</option>
 </select>
 
-<!-- Conteneur pour le bouton PayPal -->
+<!-- PayPal Me Button -->
+<a href="https://paypal.me/SAuditPro" target="_blank" class="paypalme-btn">
+Payer via PayPal.Me
+</a>
+
+<!-- PayPal Smart Button -->
 <div id="paypal-button-container"></div>
 </form>
 
@@ -85,13 +100,55 @@ footer { text-align:center; padding:20px; font-size:0.9em; color:#555;}
 &copy; 2025 Sentinel Audit Pro. Tous droits réservés.
 </footer>
 
-<!-- PayPal SDK avec ton Client ID -->
 <script src="https://www.paypal.com/sdk/js?client-id=ARWiU1EoJoc20Ht7sWAKSSbEhGC88lB6NFAX4a5Lzs_zzQgJmeROf0Kgfo-lba4jpEeZKbbz21_H8AZE&currency=EUR"></script>
 <script>
 const packSelect = document.getElementById('pack');
 const abonnementContainer = document.getElementById('abonnementContainer');
 const abonnementSelect = document.getElementById('abonnement');
-const auditForm = document.getElementById('auditForm');
-const confirmation = document.getElementById('confirmation');
 
-// Afficher abonnement seulement si Pack
+// Afficher les abonnements seulement pour Pack Premier
+packSelect.addEventListener('change', function(){
+    abonnementContainer.style.display = (this.value === 'premier') ? 'block' : 'none';
+    abonnementSelect.value = '';
+});
+
+function getAmount() {
+    const selectedPack = packSelect.value;
+    const abonnementLevel = abonnementSelect.value;
+
+    if(selectedPack === 'express') return '250';
+    if(selectedPack === 'pro') return '500';
+
+    if(selectedPack === 'premier'){
+        const mapping = {
+            'premier_250': '250',
+            'premier_300': '300',
+            'premier_500': '500',
+            'premier_900': '900'
+        };
+        return mapping[abonnementLevel] || '0';
+    }
+    return '0';
+}
+
+paypal.Buttons({
+    createOrder: function(data, actions) {
+        const amount = getAmount();
+        if(amount === '0'){
+            alert('Veuillez choisir un pack ou un abonnement.');
+            return;
+        }
+        return actions.order.create({
+            purchase_units: [{ amount: { value: amount } }]
+        });
+    },
+    onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+            document.getElementById('confirmation').style.display = "block";
+        });
+    }
+}).render('#paypal-button-container');
+</script>
+
+</body>
+</html>
