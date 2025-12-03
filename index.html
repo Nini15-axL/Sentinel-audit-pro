@@ -6,19 +6,61 @@
 <title>Sentinel Audit Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Roboto', Arial, sans-serif; margin:0; padding:0; background:#f4f5f7; color:#0B1E3F;}
-header { background:#1A73E8; color:white; padding:60px 20px; text-align:center; }
-header h1 { font-size:2.8em; margin-bottom:10px; }
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  margin:0; padding:0;
+  background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+  color:#0B1E3F;
+}
+header {
+  background:#1A73E8;
+  color:white;
+  padding:60px 20px;
+  text-align:center;
+  border-bottom:5px solid #FF9500;
+}
+header h1 { font-size:3em; margin-bottom:10px; }
 header p { font-size:1.2em; margin-top:0; }
 section { max-width:1000px; margin:0 auto; padding:40px 20px; }
-.pack { background:white; padding:25px; border-radius:20px; margin-bottom:30px; box-shadow:0 5px 25px rgba(0,0,0,0.1); transition: transform 0.3s; }
-.pack:hover { transform: translateY(-5px); }
+.pack {
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  margin-bottom:30px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.pack:hover { transform: translateY(-5px); box-shadow:0 15px 35px rgba(0,0,0,0.2); }
 .pack h3 { margin-top:0; color:#1A73E8; }
 .pack ul { margin:15px 0 20px 20px; }
 .pack p.price { font-weight:bold; color:#FF9500; font-size:1.2em; }
-.abonnement select { width:100%; padding:12px; border-radius:8px; margin-top:10px; margin-bottom:15px; font-size:1em; }
-#confirmation { display:none; padding:30px; background:#d4edda; color:#155724; border-radius:20px; margin-top:30px; text-align:center; font-size:1.1em; }
-footer { text-align:center; padding:25px; color:#555; background:#e0e0e0; margin-top:40px; }
+.abonnement select {
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  margin-top:10px;
+  margin-bottom:15px;
+  font-size:1em;
+  border:1px solid #ccc;
+}
+#confirmation {
+  display:none;
+  padding:40px;
+  background:#d4edda;
+  color:#155724;
+  border-radius:20px;
+  margin-top:30px;
+  text-align:center;
+  font-size:1.2em;
+  border:2px solid #155724;
+}
+footer {
+  text-align:center;
+  padding:25px;
+  color:#555;
+  background:#e0e0e0;
+  margin-top:40px;
+}
 button.paypal-button { margin-top:15px; }
 </style>
 </head>
@@ -36,7 +78,8 @@ button.paypal-button { margin-top:15px; }
 <h3>💡 Pack Express – 250€</h3>
 <ul>
 <li>Scan basique du site</li>
-<li>PDF résumé automatique</li>
+<li>PDF résumé automatique envoyé par email</li>
+<li>Rapide et efficace</li>
 </ul>
 <p class="price">250 €</p>
 <div id="paypal-express"></div>
@@ -45,9 +88,10 @@ button.paypal-button { margin-top:15px; }
 <div class="pack" id="pack-pro">
 <h3>🚀 Pack Pro – 500€</h3>
 <ul>
-<li>Scan complet 360°</li>
-<li>PDF détaillé + plan priorisé</li>
+<li>Scan complet 360° du site</li>
+<li>Rapport PDF détaillé + plan priorisé</li>
 <li>Analyse complète des vulnérabilités</li>
+<li>Recommandations personnalisées</li>
 </ul>
 <p class="price">500 €</p>
 <div id="paypal-pro"></div>
@@ -56,8 +100,9 @@ button.paypal-button { margin-top:15px; }
 <div class="pack" id="pack-premier">
 <h3>🌟 Pack Premier – Abonnements</h3>
 <ul>
-<li>Scan complet + rapport + monitoring</li>
+<li>Scan complet + rapport + monitoring continu</li>
 <li>Support rapide et personnalisé</li>
+<li>Options d’abonnement flexibles</li>
 </ul>
 <div class="abonnement">
 <select id="abonnementSelect">
@@ -86,16 +131,17 @@ button.paypal-button { margin-top:15px; }
 <script>
 const scriptUrl = "https://script.google.com/macros/s/AKfycbxvVOnqA-zw7L0W-VodonIE4cBGaxshe35L71O7yUnjCFvD_tWJoDMv0JyGeMDYXduZAQ/exec";
 
-function renderPayPal(containerId, amount, packName) {
+// Fonction pour rendre PayPal button
+function renderPayPal(containerId, amount, packName){
   paypal.Buttons({
     style: { shape:'pill', color:'blue', label:'pay' },
-    createOrder: function(data, actions) {
+    createOrder: function(data, actions){
       return actions.order.create({ purchase_units:[{ amount:{ value: amount } }] });
     },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
+    onApprove: function(data, actions){
+      return actions.order.capture().then(function(details){
         // Appel Apps Script pour déclencher le service automatique
-        fetch(scriptUrl, {
+        fetch(scriptUrl,{
           method:'POST',
           headers:{ 'Content-Type':'application/json' },
           body:JSON.stringify({
@@ -117,7 +163,7 @@ renderPayPal('paypal-express','250','express');
 renderPayPal('paypal-pro','500','pro');
 
 // Pack Premier dynamique
-document.getElementById('abonnementSelect').addEventListener('change',function(){
+document.getElementById('abonnementSelect').addEventListener('change', function(){
   const val=this.value;
   let montant='0';
   if(val==='premier_250') montant='250';
